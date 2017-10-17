@@ -40,6 +40,11 @@ text = '''
 - [ ] `Settings.delete(app, key, scope)`
   Deletes a setting on a particular node
 - [ ] `Settings.set_if_not_set(app, key, scope, value)` => value | existing_value
+  Sets a setting, only if not already set
+- [ ] `Settings.get_all()` => [{{app, key, scope}, value}]
+  Retrieves all settings
+- [ ] `Settings.get_all(app)` => [{{app, key, scope}, value}]
+  Retrieves all settings for a particular app
 
 '''
 
@@ -72,11 +77,17 @@ based on the Settings Api, this is the expected use of the backend calls:
   - Backend.get({app, key, scope})
   - if it exists, return the value
   - else, Backend.set({app, key, scope}, value)
+- `Settings.get_all()`
+  - Backend.all
+- `Settings.get_all(app)`
+  - Backend.all
+  -Enum.filter based on app
 
-Looking at delete/2, we could improve efficiency, offloading the Enum query
-to the backend, which is likely to be faster, but we explicitly are optimizing
-development speed of the backend, which will likely be implemented for each
-client.
+
+Looking at `delete/2`, and `get_all/1` we could improve efficiency, offloading
+the Enum query to the backend, which is likely to be faster, but we explicitly
+are optimizing development speed of the backend, which will likely be
+implemented for each client.
 
 '''
 
