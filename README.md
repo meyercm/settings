@@ -1,5 +1,10 @@
 # Settings
 
+### Design
+
+This library was designed using (Artifact)[].  The raw design files are located
+in `./design`, and they have been rendered [here][design_docs]
+
 **TODO: Add description**
 
 ## Installation
@@ -19,3 +24,5 @@ Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_do
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/settings](https://hexdocs.pm/settings).
 
+[design_docs]:
+https://meyercm.github.io/settings/#artifacts/req-purpose
