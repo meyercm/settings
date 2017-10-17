@@ -1,0 +1,98 @@
+[REQ-purpose]
+text = '''
+The purpose of this project is to provide a generic Application settings library
+that can be reused by multiple projects.
+
+Elixir generally uses the `app_env` approach to configuring applications, via
+`config.exs` and various environment versions.
+
+General requirements:
+
+- there must be a single place to find all possible settings for an applications
+- there must be a simple way to get all of the current settings for an application
+- a single setting must be able to have different values based on node()
+- the backend to store the settings must be configurable by the end-user
+
+Possible requirements:
+- a single setting must be able to have different values based on Mix.env()
+
+Parts:
+
+- [[SPC-API]] for the API design.
+- [[SPC-Backend]] for the Backend behavior design.
+- [[SPC-Config]] for configuration design.
+'''
+
+[SPC-API]
+partof = 'REQ-purpose'
+text = '''
+
+## API calls:
+
+- [ ] `Settings.set(app, key, value, scope \\ :global)`
+  Sets a Setting, optionally scoping it to a particular node.
+- [ ] `Settings.get(app, key)` => value | {:error, :bad_key}
+  Retrieves a setting, taking the current node into account.
+- [ ] `Settings.lookup(app, key, scope \\ :global)` => value | {:error, :bad_key}
+  Retrieves a setting for an arbitrary scope.
+- [ ] `Settings.delete(app, key)`
+  Deletes an entire setting
+- [ ] `Settings.delete(app, key, scope)`
+  Deletes a setting on a particular node
+- [ ] `Settings.set_if_not_set(app, key, scope, value)` => value | existing_value
+
+'''
+
+[SPC-Backend]
+partof = 'REQ-purpose'
+text = '''
+
+These are the currently identified low-level operations:
+
+- `SettingsBackend.get(key)` => value | {:error, :bad_key}
+- `SettingsBackend.set(key, value)` => :ok
+- `SettingsBackend.del(key)` => :ok
+- `SettingsBackend.all()` => [{key, value}]
+
+based on the Settings Api, this is the expected use of the backend calls:
+
+- Settings.set(app, key, value, scope)
+  - Backend.set({app, key, scope}, value)
+- Settings.get(app, key)
+  - Backend.get({app, key, node()})
+- Settings.lookup(app, key, scope)
+  - Backend.get({app, key, scope})
+- Settings.delete(app, key)
+  - Backend.all()
+  - Enum.filter based on app and key, construct tuple
+  - Backend.del(tuple)
+- Settings.delete(app, key, scope)
+  - Backend.del({app, key, scope})
+- Settings.set_if_not_set(app, key, scope, value)
+  - Backend.get({app, key, scope})
+  - if it exists, return the value
+  - else, Backend.set({app, key, scope}, value)
+
+Looking at delete/2, we could improve efficiency, offloading the Enum query
+to the backend, which is likely to be faster, but we explicitly are optimizing
+development speed of the backend, which will likely be implemented for each
+client.
+
+'''
+
+[SPC-Config]
+partof = 'REQ-purpose'
+text = '''
+Options:
+
+- Have the user set a config key in config.exs, e.g.:
+  `config :settings, settings_backend: Db.Models.Setting`
+- Have a run-time API call, e.g. during client app startup:
+  `Settings.set_backend(Db.Models.Setting)`
+
+The run-time option, while initially attractive, is less useful, because the
+expected paradigm for elixir users is that they can configure 3rd party
+applications using config.exs.  For the initial setup, we are ruling out using
+a run-time API call to set the backend.
+
+'''
