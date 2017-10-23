@@ -1,18 +1,39 @@
 defmodule Settings do
   @moduledoc """
-  Documentation for Settings.
-  """
-
-  @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> Settings.hello
-      :world
 
   """
-  def hello do
-    :world
+
+  def set_defaults(opts) do
+
   end
+
+  def get_defaults do
+
+  end
+
+  def create(name, default_value, opts) do
+
+  end
+
+  def get(name, opts) do
+
+  end
+
+  def set(name, opts) do
+
+  end
+
+  def all(opts) do
+
+  end
+
+  def delete(name, opts) do
+
+  end
+
+  def clear(name, opts) do
+
+  end
+
+
 end

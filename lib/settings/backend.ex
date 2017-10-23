@@ -1,35 +1,61 @@
-defprotocol Settings.Backend do
+defmodule Settings.Backend do
   @moduledoc """
-  The backend protocol represents a client-defined datastore (probably
-  persistent) to abstract those concerns from the intricacies of Settings.
 
-  Clients should define a struct that implements this protocol, using the first
-  parameter of the methods to store connection information, filename, Repo name,
-  etc.
-
+  The `Settings.Backend` behavior represents a client-defined datastore
+  (probably persistent) to abstract those concerns from the intricacies of
+  managing settings.
   """
+  @type app :: atom
+  @type key :: term
+  @type scope :: term
+  @type value :: term
+
+  @type settings_result :: {app, key, scope, value} # TODO: fix this.
 
   @doc """
-  This method shall accept any term as a key, and return the value associated
-  with that key, or  `{:error, :bad_key}` if the key does not exist.
+  get/0 returns all settings in the backend
   """
-  def get(backend, key)
+  @callback get() :: [settings_result]
 
   @doc """
-  This method shall accept any term as a key or value, overwriting previous
-  values. The return value is ignored.
+  get/1 returns all settings for an app in the backend
   """
-  def set(backend, key, value)
+  @callback get(app) :: [settings_result]
 
   @doc """
-  This method shall accept any term as a key, and remove it from the backend.
-  The return value is ignored.
+  get/2 returns all settings for an app, key pair (i.e. all scopes for a setting)
   """
-  def del(backend, key)
+  @callback get(app, key) :: [settings_result]
 
   @doc """
-  This methods must return a list of `{key, value}` for every key and value
-  stored in the backend.
+  get/3 accepts a list of scopes.
   """
-  def all(backend)
+  @callback get(app, key, [scope]) :: [settings_result]
+
+  @doc """
+  set/4 sets a value in the backend, and returns the value
+  """
+  @callback set(app, key, scope, value) :: value
+
+  @doc """
+  del/0 removes all settings from the backend
+  """
+  @callback del() :: :ok
+
+  @doc """
+  del/1 removes all settings for an app from the backend
+  """
+  @callback del(app) :: :ok
+
+  @doc """
+  del/2 removes all settings for an app/key pair in the backend
+  """
+  @callback del(app, key) :: :ok
+
+  @doc """
+  del/3 accepts a list of scopes
+  """
+  @callback del(app, key, [scope]) :: :ok
+
+  #TODO: how to just keep :__default scope easily?
 end

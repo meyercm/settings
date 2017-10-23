@@ -12,16 +12,79 @@ General requirements:
 - there must be a simple way to get all of the current settings for an application
 - a single setting must be able to have different values based on node()
 - the backend to store the settings must be configurable by the end-user
+- Settings may be stored in multiple backends in the same app
 
 Possible requirements:
 - a single setting must be able to have different values based on Mix.env()
 
 Parts:
 
+- [[REQ-User_Stories]] for uses
+- [[SPC-data_model]] for data modelling.
 - [[SPC-API]] for the API design.
 - [[SPC-Backend]] for the Backend behavior design.
 - [[SPC-Config]] for configuration design.
 '''
+
+
+[REQ-User_Stories]
+partof = 'REQ-purpose'
+text = '''
+
+1. Chris is developing a feature for his app, and creates a setting with a
+default value of `:foo`. As he develops this feature, he realizes that the
+default value should have been `:bar`. To update the default value, he only has
+to change one file.
+
+2. Chris has finished developing his application, and setting_1 has the default
+value of `:bar`. Now that he is deploying the application, he needs to set the
+value of the setting to `:baz` for this deployment only.
+
+3. Chris is part of the 10%, and wants to store some of his settings in
+Postgres, and some in an in-memory store.  He sets up each of his settings to
+use the appropriate backend.
+
+4. Chris is now part of the 2%, and has a setting which is stored in two
+different backends.  He doesn't mind a bit of extra work to get it from
+different places because he knows what he wants.
+
+5. We have had a setting for a while, and have a custom :global value set. Now,
+we change the default specified in `create`... What should happen to the :global
+value?
+
+6. Drew wants a macro that sets the application locally. Should it set the
+backend locally too?
+
+'''
+
+[SPC-data_model]
+partof = 'REQ-purpose'
+text = '''
+A setting is founded on the concept of an `{backend, app, key, scope, value}` tuple.
+
+The `backend` is the persistence layer for the setting.
+The `app` specifies which application the setting belongs to.
+The `key` is the name of the setting.
+
+The `scope` determines the extent of the value. Two literal scopes are reserved:
+`:__default`, and `:__global`. Additionally, the computed scope `:__node` will
+be evaluated and replaced with the result of `node()`
+
+The `value` should be obvious.
+
+`backend` will be a module that implements the `Settings.Backend` behaviour.
+`app` should be an atom.
+`key` may be any term, though atoms and tuples will be most common.
+`scope` may be any term.
+`value` may be any term.
+
+While the API allows access to all values for a setting, in typical application
+use, the abbreviated forms will first use scope matching the current node,
+followed by the :global scope, followed by the :default scope.
+
+'''
+
+
 
 [SPC-API]
 partof = 'REQ-purpose'
@@ -29,22 +92,143 @@ text = '''
 
 ## API calls:
 
-- [ ] `Settings.set(app, key, value, scope \\ :global)`
-  Sets a Setting, optionally scoping it to a particular node.
-- [ ] `Settings.get(app, key)` => value | {:error, :bad_key}
-  Retrieves a setting, taking the current node into account.
-- [ ] `Settings.lookup(app, key, scope \\ :global)` => value | {:error, :bad_key}
-  Retrieves a setting for an arbitrary scope.
-- [ ] `Settings.delete(app, key)`
-  Deletes an entire setting
-- [ ] `Settings.delete(app, key, scope)`
-  Deletes a setting on a particular node
-- [ ] `Settings.set_if_not_set(app, key, scope, value)` => value | existing_value
-  Sets a setting, only if not already set
-- [ ] `Settings.get_all()` => [{{app, key, scope}, value}]
-  Retrieves all settings
-- [ ] `Settings.get_all(app)` => [{{app, key, scope}, value}]
-  Retrieves all settings for a particular app
+### `set_defaults/1`
+
+`set_defaults(opts)` accepts a keword list with the following valid keys:
+
+- `:backend` specify a default backend for all settings.
+- `:app`     specify a default app for all settings.
+
+This call's effect is scoped to the current Elixir node, and provides default
+values when the option is not specified in `get/2` or `set/3`. The function
+returns the defaults after the change is made.
+
+### `get_defaults/0`
+
+This call returns the current default app and backend. The initial values are
+`:__none`.
+
+#### Examples:
+```elixir
+iex> Settings.get_defaults
+[app: :__none, backend: :__none]
+...> Settings.set_defaults(app: :myapp)
+[app: :myapp, backend: :__none]
+...> Settings.set_defaults(backend: MyBackend)
+[app: :myapp, backend: MyBackend]
+```
+
+### `create/3`
+
+`create(name, default_value, opts)` sets up a new setting, providing the name
+and default value. If `:backend` or `:app` are not specified in `opts`, they
+will default to those set using `set_defaults/1`
+
+When a persistent backend is used, `create` will update the default value for the
+setting, and will not impact overriding scopes already set.
+
+This function returns the setting name.
+
+#### Examples:
+
+```elixir
+iex> Settings.set_defaults(app: :myapp, backend: MyBackend)
+[app: :myapp, backend: MyBackend]
+...> Settings.create(:setting_1, "value")
+:setting_1
+...> Settings.create(:setting_2, "value2", backend: OtherBackend)
+:setting_2
+...> Settings.get(:setting_2) # <= retrieves from OtherBackend
+"value2"
+```
+
+### `get/2`
+
+`get(name, opts) retrieves a value for a setting. Valid opts:
+
+- `:app`      The application which this setting is part of. Default is
+              `:__default`, which is replaced with `get_defaults[:app]`
+- `:scope`    The scope of the setting. Default: `:__global`
+- `:backend`  The backend to retrieve from. Default is :__default, which is
+              replaced with `get_defaults[:backend]`
+
+`get` observes the following semantics: Settings first searches for a value
+matching `{app, name, scope}` using the scope passed in to `opts`. If nothing is
+found, Settings then searches for `{app, name, :__global}`, and finally for
+`{app, name, :__default}`
+
+
+### `set/3`
+
+`set(name, value, opts)` sets a value for a setting. Valid opts:
+
+- `:app`      The application which this setting is part of. Default is
+              `:__default`, which is replaced with `get_defaults[:app]`
+- `:scope`    The scope to set. Default: `:__global`
+- `:backend`  The backend to assign to. Default is :__default, which is
+              replaced with `get_defaults[:backend]`
+
+This function returns the value that was set.
+
+### `all/1`
+
+`all(opts)` retrieves all settings matching the options passed in. Valid opts:
+
+- `:app`      Limit the query to just this application's settings.
+- `:backend`  Retrieve from this backend
+
+
+```elixir
+set_defaults(backend: default_backend, app: default_app)
+
+@create_default_opts [app: :__default, backend: :__default]
+create(name, default_value, opts)  # :ok
+
+@type app atom
+@type key any
+@type scope any
+@type value any
+@type setting {app, key, [{scope, value}]}
+
+@default_get_opts [app: :__default, scope: :__node, backend: :__default]
+get(name, opts)         # => value | {:error, :bad_key}
+
+@default_set_opts [app: :__default, scope: :__global, backend: :__default]
+set(name, value, opts)  # => :ok | {:error, :bad_key}
+
+@default_all_opts [app: :__default, backend: :__default]
+all(opts)               # => [setting]
+
+# deletes the whole thing:
+@default_delete_opts [app: :__default, backend: :__default]
+delete(name, opts)      # => :ok | {:error, :bad_key}
+
+# just removes one scope.  scope: :__default won't work here.
+# scope is a mandatory parameter, but putting it in opts because that's where it
+# is for the rest of the API
+@default_clear_opts [app: :__default, scope: :__must_specify, :backend: :__default]
+clear(name, opts)       # => :ok | {:error, :bad_key}
+
+# dumps the contents of a backend
+dump(backend) # => [setting]
+
+# clears a backend of all settings
+delete_all(backend) # => :ok
+```
+## Examples
+
+Settings.set_defaults(backend: %PgBackend{}, app: :my_app)
+
+# adds {:my_app, :first_setting, :__default, "default_value"} to the PgBackend
+Settings.create(:first_setting, "default_value")
+
+# adds {:my_app, :first_setting, :__global, "custom"} to the PgBackend
+Settings.set(:first_setting, "custom")
+
+Settings.get(:first_setting) # => "custom"
+Settings.get(:first_setting, scope: :__default) # => "default_value"
+
+Settings.all() # => [{:myapp, :first_setting, [__default: "default_value", __global: "custom"]}]
 
 '''
 
@@ -81,7 +265,7 @@ based on the Settings Api, this is the expected use of the backend calls:
   - Backend.all
 - `Settings.get_all(app)`
   - Backend.all
-  -Enum.filter based on app
+  - Enum.filter based on app
 
 
 Looking at `delete/2`, and `get_all/1` we could improve efficiency, offloading
