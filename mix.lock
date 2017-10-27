@@ -1,2 +1,4 @@
 %{"espec": {:hex, :espec, "1.4.6", "9ac809d2a7ce64b9dbb468a517fe0c00c0464e4aeb918709ad2ba68a0a0d6536", [], [{:meck, "0.8.7", [hex: :meck, repo: "hexpm", optional: false]}], "hexpm"},
-  "meck": {:hex, :meck, "0.8.7", "ebad16ca23f685b07aed3bc011efff65fbaf28881a8adf925428ef5472d390ee", [], [], "hexpm"}}
+  "ets_owner": {:hex, :ets_owner, "1.0.0", "f8408c609c29cb6925c2f71bac07f3e35352786b2c6824ad545f8133a4f3762d", [], [], "hexpm"},
+  "meck": {:hex, :meck, "0.8.7", "ebad16ca23f685b07aed3bc011efff65fbaf28881a8adf925428ef5472d390ee", [], [], "hexpm"},
+  "shorter_maps": {:hex, :shorter_maps, "2.2.4", "69b54de2f5a744964b4c1748d2d111a6fea34fa7440af03f8161be6655e703f0", [], [], "hexpm"}}

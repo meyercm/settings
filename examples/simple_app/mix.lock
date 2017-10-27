@@ -1,0 +1,2 @@
+%{"ets_owner": {:hex, :ets_owner, "1.0.0", "f8408c609c29cb6925c2f71bac07f3e35352786b2c6824ad545f8133a4f3762d", [], [], "hexpm"},
+  "shorter_maps": {:hex, :shorter_maps, "2.2.4", "69b54de2f5a744964b4c1748d2d111a6fea34fa7440af03f8161be6655e703f0", [], [], "hexpm"}}

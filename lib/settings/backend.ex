@@ -57,5 +57,10 @@ defmodule Settings.Backend do
   """
   @callback del(app, key, [scope]) :: :ok
 
-  #TODO: how to just keep :__default scope easily?
+  @doc """
+  keeps a list of scopes for an app/key pair. removes the rest of the scopes.
+
+  **Doesn't impact other app/key pairs**
+  """
+  @callback keep_only(app, key, [scope]) :: :ok
 end

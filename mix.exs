@@ -36,6 +36,8 @@ defmodule Settings.Mixfile do
   defp deps do
     [
       {:espec, "~> 1.4.6", only: :test},
+      {:shorter_maps, "~> 2.0"},
+      {:ets_owner, "~> 1.0"},
     ]
   end
 end
