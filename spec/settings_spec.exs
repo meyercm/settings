@@ -40,8 +40,8 @@ defmodule SettingsSpec do
       finally do
         Settings.InMemoryBackend.stop
       end
-      describe "create(name, default_value, opts)" do
 
+      describe "create(name, default_value, opts)" do
         it "creates a default" do
           Settings.create(:name, :value)
           expect(Settings.get(:name) |> to(eq(:value)))
@@ -62,6 +62,9 @@ defmodule SettingsSpec do
           expect(Settings.get(:name))
           |> to(eq(:value))
         end
+        it "returns the setting name" do
+          expect(Settings.create(:name, :value)) |> to(eq(:name))
+        end
       end
       describe "get(name, opts)" do
         it "can use a specific app" do
@@ -69,7 +72,6 @@ defmodule SettingsSpec do
           expect(Settings.get(:name, app: :custom_app))
           |> to(eq(:value))
         end
-        it "can pull from a different backend"
         it "can use the default app" do
           Settings.create(:name, :value)
           expect(Settings.get(:name))

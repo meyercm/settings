@@ -177,6 +177,7 @@ This function returns the value that was set.
 - `:app`      Limit the query to just this application's settings.
 - `:backend`  Retrieve from this backend
 
+##### START AGAIN HERE
 
 ```elixir
 set_defaults(backend: default_backend, app: default_app)
@@ -206,11 +207,10 @@ delete(name, opts)      # => :ok | {:error, :bad_key}
 # just removes one scope.  scope: :__default won't work here.
 # scope is a mandatory parameter, but putting it in opts because that's where it
 # is for the rest of the API
-@default_clear_opts [app: :__default, scope: :__must_specify, :backend: :__default]
+# should clear allow deleting :__default scope?
+@default_clear_opts [app: :__default, scope: :__all_but_default, :backend: :__default]
 clear(name, opts)       # => :ok | {:error, :bad_key}
 
-# dumps the contents of a backend
-dump(backend) # => [setting]
 
 # clears a backend of all settings
 delete_all(backend) # => :ok
@@ -232,6 +232,52 @@ Settings.all() # => [{:myapp, :first_setting, [__default: "default_value", __glo
 
 '''
 
+[SPC-Macros]
+partof = 'REQ-purpose'
+text = '''
+
+A nice syntax in Umbrella apps is for a module to locally define default
+application (or backend, if that makes sense).  Something like:
+
+```elixir
+defmodule MyMod do
+  use Settings.LocalDefaults app: :my_app
+  ...
+end
+
+from this point forward, instead of using `:__default` for the `:app` in
+Settings functions, :my_app will be specified.
+
+Several things are required to make this work.
+
+1. persistence is needed to remember the defaults for a module.
+2. some macro will be required to inject code in the caller, since the receiever
+   (Settings) will not know who the caller is.
+3. Since we don't want to force everyone to use macros in other uses, we must
+   play an alias game, something like `alias Settings.Macros, as: Settings` so
+   that clients can use the same API syntax against the macros without changing
+   their code.
+
+The following snippet solves the persistence problem.
+
+```elixir
+# To store local defaults, the following code will need to get wrapped up in a
+# `__using__/1` macro (along with some `alias` voodoo):
+iex(1)> defmodule Test do
+...(1)>   Module.register_attribute(__MODULE__, :custom_attr, persist: true)
+...(1)>   @custom_attr :test
+...(1)> end
+
+# Here is how the data can be accessed
+iex(2)> Test.__info__(:attributes)[:custom_attr]
+[:test]
+
+# A module without the custom attr returns `nil`
+iex(3)> Kernel.__info__(:attributes)[:custom_attr]
+nil
+```
+
+'''
 [SPC-Backend]
 partof = 'REQ-purpose'
 text = '''
