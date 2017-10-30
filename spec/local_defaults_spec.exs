@@ -43,7 +43,7 @@ defmodule Settings.LocalDefaultsSpec do
 
   describe "methods against the backend" do
     before do
-      {:ok, _pid} = Settings.InMemoryBackend.start_link
+      {:ok, _pid} = Settings.InMemoryBackend.start_link([])
       # set a default that is overridden in `TestingWrapper`
       Settings.set_defaults(app: :app2)
       # set up some Settings to test against

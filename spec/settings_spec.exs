@@ -34,7 +34,7 @@ defmodule SettingsSpec do
     end
     describe "using a backend" do
       before do
-        {:ok, _pid} = Settings.InMemoryBackend.start_link
+        {:ok, _pid} = Settings.InMemoryBackend.start_link([])
         Settings.set_defaults(app: :my_app, backend: Settings.InMemoryBackend)
       end
       finally do

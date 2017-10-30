@@ -10,7 +10,7 @@ defmodule Settings.InMemoryBackend do
   # API
   ##############################
 
-  def start_link() do
+  def start_link([]) do
     GenServer.start_link(__MODULE__, [], [name: __MODULE__])
   end
 
@@ -130,7 +130,7 @@ defmodule Settings.InMemoryBackend do
 
   # :: :ok
   @impl true
-  def handle_call(:del, _from, ~M{settings} = state) do
+  def handle_call(:del, _from, state) do
     {:reply, :ok, %{state|settings: %{}}}
   end
 

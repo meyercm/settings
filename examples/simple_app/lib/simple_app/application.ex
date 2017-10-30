@@ -3,13 +3,12 @@ defmodule SimpleApp.Application do
   use Application
 
   def start(_type, _args) do
-    children = []
+    children = [
+      Settings.InMemoryBackend, # first, start the backend
+      SimpleApp.AppSettings,    # then load it with items
+      SimpleApp.Worker,         # then start any clients
+    ]
     opts = [strategy: :one_for_one, name: SimpleApp.Supervisor]
-    #FIXME: this is hideous.
-    {:ok, _pid} = Settings.InMemoryBackend.start_link
-    # load up the default settings before the app starts.
-    # check ./app_settings.ex for more info.
-    SimpleApp.AppSettings.load
 
     Supervisor.start_link(children, opts)
   end

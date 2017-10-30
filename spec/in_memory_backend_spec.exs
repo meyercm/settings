@@ -3,7 +3,7 @@ defmodule InMemoryBackendSpec do
   alias Settings.InMemoryBackend
 
   before do
-    {:ok, _pid} = InMemoryBackend.start_link
+    {:ok, _pid} = InMemoryBackend.start_link([])
   end
 
   finally do
