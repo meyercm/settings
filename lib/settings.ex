@@ -27,7 +27,7 @@ defmodule Settings do
   returns the defaults after the change is made.
   """
   def set_defaults(opts) do
-    new_defaults = get_defaults
+    new_defaults = get_defaults()
                    |> Keyword.merge(opts)
     EtsHelper.set(@global_defaults, new_defaults)
     new_defaults
@@ -90,7 +90,7 @@ defmodule Settings do
   end
 
   @doc """
-  `get(name, opts) retrieves a value for a setting. Valid opts:
+  `get(name, opts)` retrieves a value for a setting. Valid opts:
 
   - `:app`      The application which this setting is part of. Default is
                 `:__default`, which is replaced with `get_defaults[:app]`
@@ -243,7 +243,7 @@ defmodule Settings do
   end
   defp get_app(other), do: other
 
-  defp do_get(backend, app, name, @global, scopes) do
+  defp do_get(_backend, _app, _name, @global, scopes) do
     Map.get(scopes, @global, scopes[@default])
     |> Map.get(:value)
   end
