@@ -1,5 +1,7 @@
 # Settings
 
+[![Build Status](https://travis-ci.org/meyercm/settings.svg?branch=master)](https://travis-ci.org/meyercm/settings)
+
 `Settings` is a generic settings API for top-level applications, intended to
 solve a set of real-world issues with other approaches to run-time application
 configuration.
