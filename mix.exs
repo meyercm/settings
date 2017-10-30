@@ -38,6 +38,7 @@ defmodule Settings.Mixfile do
       {:espec, "~> 1.4.6", only: :test},
       {:shorter_maps, "~> 2.0"},
       {:ets_owner, "~> 1.0"},
+      {:ex_doc, ">= 0.0.0", only: :dev},
     ]
   end
 end
