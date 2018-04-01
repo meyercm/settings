@@ -8,8 +8,6 @@ config :settings, Settings.EctoBackend.Repo,
   username: "elixir",
   password: "elixir",
   hostname: "localhost",
-  port: 15432,
-  log: false
+  port: 15432
 
-
-config :settings, ecto_repos: [Settings.EctoBackend.Repo]
+config :ecto_app, ecto_repos: [Settings.EctoBackend.Repo]  

@@ -39,6 +39,10 @@ defmodule Settings.Mixfile do
       {:shorter_maps, "~> 2.0"},
       {:ets_owner, "~> 1.0"},
       {:ex_doc, ">= 0.0.0", only: :dev},
+      {:ecto, "~> 2.0"},
+      {:ecto_atom, "~> 1.0.0"},
+      {:postgrex, "~> 0.11"},
+      {:poison, "~> 3.0"}
     ]
   end
 end
