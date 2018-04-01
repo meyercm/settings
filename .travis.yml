@@ -15,5 +15,5 @@ services:
 
 script:
   - mix ecto.create
-  - mix.ecto.migrate
+  - mix ecto.migrate
   - mix espec --trace
