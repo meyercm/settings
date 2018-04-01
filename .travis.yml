@@ -1,6 +1,9 @@
 language:
   elixir
 
+addons:
+  postgresql: "9.6"
+
 matrix:
   include:
     - otp_release: 19.2
@@ -9,9 +12,6 @@ matrix:
       elixir: 1.5.2
     - otp_release: 20.0
       elixir: 1.6.2
-
-services:
-  - postgresql
 
 script:
   - mix ecto.create
