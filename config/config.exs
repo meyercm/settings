@@ -4,11 +4,11 @@ use Mix.Config
 
 config :settings, Settings.EctoBackend.Repo,
   adapter: Ecto.Adapters.Postgres,
-  database: "settings_repo",
-  username: "elixir",
-  password: "elixir",
+  database: "settings",
+  username: "postgres",
+  password: "",
   hostname: "localhost",
-  port: 15432,
+  port: 5432,
   log: false
 
 

@@ -7,6 +7,13 @@ matrix:
       elixir: 1.4.5
     - otp_release: 20.0
       elixir: 1.5.2
+    - otp_release: 20.0
+      elixir: 1.6.2
+
+services:
+  - postgresql
 
 script:
+  - mix ecto.create
+  - mix.ecto.migrate
   - mix espec --trace
