@@ -20,9 +20,13 @@ deferring the practicalities of persistence to the client via the
 
 #### Backend
 
-`Settings` currently ships with just an in-memory backend, which was required in
+`Settings` currently ships with an in-memory backend, which was required in
 order to test Settings.  You will need to write a module that implements the
 `Settings.Backend` behavior.
+
+`Setting` also ships an `Ecto` based backend which writes settings in a database. 
+Please note that this backend doesn't support atom as value. See th `ecto_backend` example
+for configuration details.
 
 #### Use
 
