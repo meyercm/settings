@@ -1,44 +1,44 @@
 defmodule Settings.Mixfile do
   use Mix.Project
 
-  @version "0.1.0"
-  @repo_url "https://github.com/meyercm/settings"
-
   def project do
-    [
-      app: :settings,
-      version: @version,
-      elixir: "~> 1.0",
-      start_permanent: Mix.env == :prod,
-      deps: deps(),
-      # Hex
-      package: hex_package(),
-      description: "A generic Elixir application settings library",
-      # Docs
-      name: "Settings",
-      # Testing
-      preferred_cli_env: [espec: :test],
-    ]
+    [app: :settings,
+     version: "0.1.0",
+     build_path: "../../_build",
+     config_path: "../../config/config.exs",
+     deps_path: "../../deps",
+     lockfile: "../../mix.lock",
+     elixir: "~> 1.6.2",
+     build_embedded: Mix.env == :prod,
+     start_permanent: Mix.env == :prod,
+     preferred_cli_env: [espec: :test],
+     deps: deps()]
   end
 
+  # Configuration for the OTP application
+  #
+  # Type "mix help compile.app" for more information
   def application do
-    [
-      extra_applications: [:logger]
-    ]
+    [applications: [:logger, :sasl],
+     mod: {Settings.App, []}]
   end
 
-  defp hex_package do
-    [maintainers: ["Chris Meyer"],
-     licenses: ["MIT"],
-     links: %{"GitHub" => @repo_url}]
-  end
-
+  # Dependencies can be Hex packages:
+  #
+  #   {:mydep, "~> 0.3.0"}
+  #
+  # Or git/path repositories:
+  #
+  #   {:mydep, git: "https://github.com/elixir-lang/mydep.git", tag: "0.1.0"}
+  #
+  # To depend on another app inside the umbrella:
+  #
+  #   {:myapp, in_umbrella: true}
+  #
+  # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:espec, "~> 1.4.6", only: :test},
-      {:shorter_maps, "~> 2.0"},
-      {:ets_owner, "~> 1.0"},
-      {:ex_doc, ">= 0.0.0", only: :dev},
+      {:espec, "~> 1.4.0", only: :test},
     ]
   end
 end
